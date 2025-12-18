@@ -1,0 +1,12 @@
+{
+  "PI": "PI1",
+  "devices": {
+    "DS1":   { "enabled": true, "simulated": true,  "pin": 5,  "pull": "UP" },
+    "DPIR1": { "enabled": true, "simulated": true,  "pin": 6 },
+    "DUS1":  { "enabled": true, "simulated": true,  "trigger": 23, "echo": 24, "interval": 1 },
+    "DMS":   { "enabled": true, "simulated": true,  "pins": [16, 20, 21, 26] },
+
+    "DL":    { "enabled": true, "simulated": true,  "pin": 12 },
+    "DB":    { "enabled": true, "simulated": true,  "pin": 13 }
+  }
+}
