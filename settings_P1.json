@@ -1,0 +1,46 @@
+{
+  "PI": "PI1",
+  "devices": {
+    "DS1": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 5,
+      "pull": "UP",
+      "interval": 0.2
+    },
+    "DPIR1": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 6,
+      "interval": 0.5
+    },
+    "DUS1": {
+      "enabled": true,
+      "simulated": true,
+      "trigger": 23,
+      "echo": 24,
+      "interval": 1.0
+    },
+    "DMS": {
+      "enabled": true,
+      "simulated": true,
+      "pins": [16, 20, 21, 26, 19, 13, 12, 17],
+      "interval": 0.2
+    },
+    "DL": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 12
+    },
+    "DB": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 13
+    },
+    "WEBC": {
+      "enabled": false,
+      "simulated": true,
+      "interval": 5.0
+  }
+  }
+}

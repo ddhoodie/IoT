@@ -1,0 +1,51 @@
+{
+  "PI": "PI2",
+  "devices": {
+    "DS2": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 5,
+      "pull": "UP",
+      "interval": 0.2
+    },
+    "DUS2": {
+      "enabled": true,
+      "simulated": true,
+      "trigger": 23,
+      "echo": 24,
+      "interval": 1.0
+    },
+    "DPIR2": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 6,
+      "interval": 0.5
+    },
+    "4SD": {
+      "enabled": true,
+      "simulated": true,
+      "address": "0x70",
+      "brightness": 1.0
+    },
+    "BTN": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 17,
+      "pull": "UP",
+      "interval": 0.2
+    },
+    "DHT3": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 4,
+      "type": "DHT22",
+      "interval": 2.0
+    },
+    "GYR": {
+      "enabled": true,
+      "simulated": true,
+      "address": "0x68",
+      "interval": 0.5
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "PI": "PI3",
+  "devices": {
+    "DHT1": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 4,
+      "type": "DHT11",
+      "interval": 2.0
+    },
+    "DHT2": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 17,
+      "type": "DHT22",
+      "interval": 2.0
+    },
+    "IR": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 18,
+      "interval": 0.5
+    },
+    "BRGB": {
+      "enabled": true,
+      "simulated": true,
+      "r_pin": 22,
+      "g_pin": 27,
+      "b_pin": 24
+    },
+    "LCD": {
+      "enabled": true,
+      "simulated": true,
+      "address": "0x27",
+      "cols": 16,
+      "rows": 2
+    },
+    "DPIR3": {
+      "enabled": true,
+      "simulated": true,
+      "pin": 23,
+      "interval": 0.5
+    }
+  }
+}

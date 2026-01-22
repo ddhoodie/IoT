@@ -1,7 +1,10 @@
 from devices.base import ActuatorBase
 from devices.gpio_adapter import GPIOAdapter
 
-class LedActuator(ActuatorBase):
+
+class LEDActuator(ActuatorBase):
+    """LED Control"""
+
     def __init__(self, code, cfg):
         super().__init__(code, cfg)
         self.state = 0

@@ -3,6 +3,8 @@ from devices.base import ActuatorBase
 from devices.gpio_adapter import GPIOAdapter
 
 class BuzzerActuator(ActuatorBase):
+    """Buzzer Control"""
+
     def __init__(self, code, cfg):
         super().__init__(code, cfg)
         self.gpio = GPIOAdapter()

@@ -41,16 +41,15 @@ class App:
         print("Bye.")
 
     def console_loop(self, actuators, stop_event):
-        safe_print("\nCommands:")
-        safe_print("  dl on|off|toggle")
-        safe_print("  db on|off|beep <ms>")
-        safe_print("  help | status | exit\n")
+        safe_print("\nAvailable actuators:")
+        for code in actuators:
+            safe_print(f"  {code.lower()}")
+        safe_print("\nCommands: <actuator> <args> | help | status | exit\n")
 
         while not stop_event.is_set():
             try:
-                # with console_lock:
-                    line = input("> ").strip()
-            except EOFError:
+                line = input("> ").strip()
+            except (EOFError, KeyboardInterrupt):
                 break
 
             if not line:
@@ -58,7 +57,17 @@ class App:
             if line in ("exit", "quit"):
                 break
             if line == "help":
-                print("dl on|off|toggle | db on|off|beep <ms> | exit")
+                safe_print("Available commands:")
+                safe_print("  dl on|off|toggle")
+                safe_print("  db on|off|beep <ms>")
+                safe_print("  brgb <r> <g> <b>")
+                safe_print("  lcd <text> | lcd clear")
+                safe_print("  4sd <number>")
+                safe_print("  status | exit")
+                continue
+
+            if line == "status":
+                safe_print(f"Running {len(actuators)} actuators")
                 continue
 
             parts = line.split()
@@ -66,10 +75,10 @@ class App:
             args = parts[1:]
 
             if code not in actuators:
-                print("Unknown actuator:", code)
+                safe_print(f"Unknown actuator: {code}")
                 continue
 
             try:
                 actuators[code].handle(args)
             except Exception as e:
-                print("ERR:", e)
+                safe_print(f"Error: {e}")

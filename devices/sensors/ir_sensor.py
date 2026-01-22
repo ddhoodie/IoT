@@ -1,48 +1,46 @@
 import threading
 import time
-
 from devices.base import SensorBase
 from devices.gpio_adapter import GPIOAdapter
-from simulators.pir_sim import run_pir_sim
-
+from simulators.ir_sim import run_ir_sim
 from core.console import safe_print, print_prompt
 
 
-class PIRSensor(SensorBase):
-    """ Passive Infrared Sensor """
+class IRSensor(SensorBase):
+    """Infrared Obstacle Detection Sensor"""
 
     def start(self, threads, stop_event):
-        delay = self.cfg.get("interval", 0.5)
+        interval = self.cfg.get("interval", 0.5)
 
-        def callback(motion):
+        def callback(detected):
             ts = time.strftime("%H:%M:%S")
-            safe_print(f"\n[{ts}] {self.code} motion={motion}")
+            status = "OBJECT DETECTED" if detected else "clear"
+            safe_print(f"\n[{ts}] {self.code} {status}")
             print_prompt()
 
-        # simulated
         if self.cfg.get("simulated", True):
             t = threading.Thread(
-                target=run_pir_sim,
-                args=(delay, callback, stop_event),
+                target=run_ir_sim,
+                args=(interval, callback, stop_event),
                 daemon=True
             )
             t.start()
             threads.append(t)
             return
 
-        # real
+        # Pravi IR sensor
         gpio = GPIOAdapter()
         pin = self.cfg["pin"]
         gpio.setup_in(pin)
 
         def loop():
-            last = None
+            last_state = None
             while not stop_event.is_set():
-                val = gpio.read(pin)
-                if val != last:
-                    last = val
-                    callback(val)
-                time.sleep(delay)
+                state = gpio.read(pin)
+                if state != last_state:
+                    last_state = state
+                    callback(bool(state))
+                time.sleep(interval)
 
         t = threading.Thread(target=loop, daemon=True)
         t.start()
