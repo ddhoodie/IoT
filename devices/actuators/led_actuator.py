@@ -33,3 +33,4 @@ class LEDActuator(ActuatorBase):
             self.gpio.write(self.pin, self.state)
 
         print(f"{self.code} -> {self.state}")
+        self.publish_status(self.state)

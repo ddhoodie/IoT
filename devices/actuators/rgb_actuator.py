@@ -56,3 +56,4 @@ class RGBActuator(ActuatorBase):
             self.gpio.write(self.b_pin, b)
 
         print(f"{self.code} -> RGB({r},{g},{b})")
+        self.publish_status({"r": r, "g": g, "b": b})

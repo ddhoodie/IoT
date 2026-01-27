@@ -25,8 +25,12 @@ class GyroscopeSensor(SensorBase):
                 "device": self.cfg.get("name", self.code),
                 "code": self.code,
                 "value": {
-                    "accel": [accel_x, accel_y, accel_z],
-                    "gyro": [gyro_x, gyro_y, gyro_z]
+                    "accel_x": accel_x,
+                    "accel_y": accel_y,
+                    "accel_z": accel_z,
+                    "gyro_x": gyro_x,
+                    "gyro_y": gyro_y,
+                    "gyro_z": gyro_z
                 },
                 "simulated": is_simulated,
                 "timestamp": time.time()

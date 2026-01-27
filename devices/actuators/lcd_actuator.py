@@ -36,3 +36,4 @@ class LCDActuator(ActuatorBase):
             self.lcd.write_string(text[:32])  # Max 32 chars for 16x2
 
         print(f"{self.code} -> '{text}'")
+        self.publish_status(text)

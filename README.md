@@ -21,6 +21,7 @@ docker-compose up -d
 Ovo će pokrenuti:
 - **RabbitMQ** (MQTT broker) na portu `1883`.
 - **InfluxDB** na portu `8086`.
+- **Grafana** na portu `3000`.
 
 ### 2. Instalacija zavisnosti
 Preporučuje se korišćenje virtuelnog okruženja:
@@ -56,6 +57,15 @@ Podaci se mogu pregledati putem InfluxDB Web UI-a:
 3. Idite na **Explore** (ikona grafikona sa leve strane).
 4. Izaberite željeni buket (npr. `dht`, `pir`, `ultrasonic`) da biste videli prikupljene podatke.
 5. InfluxDB token koji se koristi u aplikaciji je `iot_token_123`, a organizacija je `iot_org`.
+
+## Pregled podataka u Grafana
+Za naprednu vizuelizaciju podataka sa svih senzora i stanja aktuatora koristite Grafana dashboard:
+1. Otvorite `http://localhost:3000` u browseru.
+2. Prijavite se sa kredencijalima:
+   - **Korisničko ime:** `admin`
+   - **Lozinka:** `admin`
+3. Sa leve strane izaberite **Dashboards**.
+4. Otvorite **IoT System Dashboard**. Dashboard je unapred konfigurisan i automatski učitava podatke iz InfluxDB-a.
 
 ## Config
 Konfiguracija uređaja vrši se kroz fajl `settings.json` (ili specifične fajlove poput `settings_P1.json`), gde se za svaki senzor i aktuator definišu pinovi i režim rada (simuliran ili realan).

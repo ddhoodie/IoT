@@ -24,16 +24,18 @@ class BuzzerActuator(ActuatorBase):
             if self.pin is not None:
                 self.gpio.write(self.pin, val)
             print(f"{self.code} -> {cmd}")
+            self.publish_status(val)
             return
 
         if cmd == "beep":
             ms = int(args[1]) if len(args) > 1 else 200
             print(f"{self.code} -> beep {ms}ms")
-            if self.pin is None:
-                return
-            self.gpio.write(self.pin, 1)
-            time.sleep(ms / 1000.0)
-            self.gpio.write(self.pin, 0)
+            self.publish_status(1)
+            if self.pin is not None:
+                self.gpio.write(self.pin, 1)
+                time.sleep(ms / 1000.0)
+                self.gpio.write(self.pin, 0)
+            self.publish_status(0)
             return
 
         raise ValueError("Usage: db on|off|beep <ms>")

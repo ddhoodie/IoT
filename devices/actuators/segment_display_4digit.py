@@ -30,6 +30,7 @@ class SegmentDisplay4Digit(ActuatorBase):
         if self.display:
             self.display.print(text)
         self.current_value = text
+        self.publish_status(text)
 
     def _run_timer(self, seconds):
         remaining = seconds

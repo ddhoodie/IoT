@@ -79,8 +79,8 @@ class MqttPublisher:
     def _batch_worker(self, sensor_type, queue):
         batch = []
         last_publish = time.time()
-        batch_size = 1
-        timeout = 1 # seconds
+        batch_size = 5
+        timeout_seconds = 5
 
         while not self.stop_event.is_set():
             try:
@@ -94,7 +94,7 @@ class MqttPublisher:
                 pass # timeout reached
 
             now = time.time()
-            if len(batch) >= batch_size or (len(batch) > 0 and now - last_publish > timeout):
+            if len(batch) >= batch_size or (len(batch) > 0 and now - last_publish > timeout_seconds):
                 self._flush_batch(sensor_type, batch)
                 batch = []
                 last_publish = now
@@ -116,8 +116,6 @@ class MqttPublisher:
                 print(f"MQTT Publisher: Error calling publish, code {res.rc}")
                 if res.rc == mqtt.MQTT_ERR_NO_CONN:
                     self.connected = False
-            # else:
-            #    print(f"MQTT Publisher: Publish call returned SUCCESS")
         except Exception as e:
             print(f"MQTT Publisher: Exception during publish: {e}")
             self.connected = False
