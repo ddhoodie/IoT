@@ -1,10 +1,10 @@
 import threading
 import time
 from devices.base import SensorBase
-from devices.gpio_adapter import GPIOAdapter
 from simulators.dht_sim import run_dht_sim
 from core.console import safe_print, print_prompt
-
+from core.mqtt_publisher import mqtt_publisher
+import settings
 
 class DHTSensor(SensorBase):
     """Temperature & Humidity Sensor"""
@@ -12,13 +12,28 @@ class DHTSensor(SensorBase):
     def start(self, threads, stop_event):
         interval = self.cfg.get("interval", 2.0)
         sensor_type = self.cfg.get("type", "DHT11")  # DHT11 ili DHT22
+        is_simulated = self.cfg.get("simulated", True)
 
         def callback(temp, humidity):
             ts = time.strftime("%H:%M:%S")
             safe_print(f"\n[{ts}] {self.code} temp={temp:.1f}°C humidity={humidity:.1f}%")
             print_prompt()
 
-        if self.cfg.get("simulated", True):
+            data = {
+                "measurement": "DHT",
+                "pi": settings.settings.get("PI", "unknown"),
+                "device": self.cfg.get("name", self.code),
+                "code": self.code,
+                "value": {
+                    "temperature": temp,
+                    "humidity": humidity
+                },
+                "simulated": is_simulated,
+                "timestamp": time.time()
+            }
+            mqtt_publisher.publish_data("DHT", data)
+
+        if is_simulated:
             # Simulacija
             t = threading.Thread(
                 target=run_dht_sim,

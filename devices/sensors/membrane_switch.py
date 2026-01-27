@@ -4,18 +4,31 @@ from devices.base import SensorBase
 from devices.gpio_adapter import GPIOAdapter
 from simulators.membrane_sim import run_membrane_sim
 from core.console import safe_print, print_prompt
-
+from core.mqtt_publisher import mqtt_publisher
+import settings
 
 class MembraneSwitchSensor(SensorBase):
     """4x4 Membrane Matrix Keypad"""
 
     def start(self, threads, stop_event):
         interval = self.cfg.get("interval", 0.2)
+        is_simulated = self.cfg.get("simulated", True)
 
         def callback(key):
             ts = time.strftime("%H:%M:%S")
             safe_print(f"\n[{ts}] {self.code} key_pressed='{key}'")
             print_prompt()
+
+            data = {
+                "measurement": "Membrane",
+                "pi": settings.settings.get("PI", "unknown"),
+                "device": self.cfg.get("name", self.code),
+                "code": self.code,
+                "value": key,
+                "simulated": is_simulated,
+                "timestamp": time.time()
+            }
+            mqtt_publisher.publish_data("Membrane", data)
 
         if self.cfg.get("simulated", True):
             t = threading.Thread(

@@ -1,11 +1,13 @@
 from settings import load_settings
 from core.registry import SENSORS, ACTUATORS
 import threading
-from core.console import safe_print, console_lock
+from core.console import safe_print
+from core.mqtt_publisher import mqtt_publisher
 
 class App:
     def run(self):
         cfg = load_settings()
+        mqtt_publisher.setup(cfg)
         devices_cfg = cfg.get("devices", {})
 
         stop_event = threading.Event()
@@ -36,6 +38,7 @@ class App:
 
         # stop
         stop_event.set()
+        mqtt_publisher.stop()
         for t in threads:
             t.join(timeout=2)
         print("Bye.")

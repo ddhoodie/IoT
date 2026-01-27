@@ -11,4 +11,12 @@ def load_settings(file_path=None):
 
     print(f"Loading config: {file_path}")
     with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        config = json.load(f)
+
+    # Global config accessible via module
+    global settings
+    settings = config
+    return config
+
+
+settings = {}

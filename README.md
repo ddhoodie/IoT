@@ -1,23 +1,71 @@
 # IoT
-Project for FTN SIIT InternetOfThings 
+Projekat za FTN SIIT InternetOfThings.
 
 ## Opis projekta
-Projektni zadatak ima za cilj implementaciju uređaja pametne kuće. Trenutno imlementirana kontrolna tačka 1. 
-Senzori ispisuju stanje u konzoli, a aktuatori se kontrolišu putem komandne linije.
+Projektni zadatak ima za cilj implementaciju uređaja pametne kuće. Trenutno implementirana kontrolna tačka 1.
+Senzori ispisuju stanje u konzoli i šalju podatke na MQTT broker, a aktuatori se kontrolišu putem komandne linije.
+
 ## Arhitektura
-Aplikacija je podeljena na `core`, `devices` i `simulators`. 
-Senzori i aktuatori se inicijalizuju kroz registry i rade u posebnim threadovima. 
+Aplikacija je podeljena na `core`, `devices`, `simulators` i `backend`.
+Senzori i aktuatori se inicijalizuju kroz registry i rade u posebnim threadovima.
 GPIO pristup je izolovan kroz adapter radi podrške za realan i simuliran rad.
+`backend/server.py` prikuplja podatke sa MQTT brokera i čuva ih u InfluxDB bazi.
+
 ## Kako pokrenuti
-Run main.py. Ispis senzora trenutno i komandama kotrola aktuatora.
+
+### 1. Pokretanje infrastrukture (Docker Compose)
+Potrebno je imati instaliran Docker. Pokrenite RabbitMQ i InfluxDB komandom:
+```bash
+docker-compose up -d
+```
+Ovo će pokrenuti:
+- **RabbitMQ** (MQTT broker) na portu `1883`.
+- **InfluxDB** na portu `8086`.
+
+### 2. Instalacija zavisnosti
+Preporučuje se korišćenje virtuelnog okruženja:
+```bash
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/Mac
+```
+Instalirajte potrebne biblioteke:
+```bash
+pip install flask paho-mqtt influxdb-client
+```
+
+### 3. Pokretanje Backend servera
+U novom terminalu (uz aktiviran venv) pokrenite:
+```bash
+python backend/server.py
+```
+Server će slušati MQTT poruke i automatski kreirati buckete u InfluxDB bazi za svaki tip senzora.
+
+### 4. Pokretanje simulatora uređaja
+U novom terminalu (uz aktiviran venv) pokrenite:
+```bash
+python main.py
+```
+
+## Pregled podataka u InfluxDB
+Podaci se mogu pregledati putem InfluxDB Web UI-a:
+1. Otvorite `http://localhost:8086` u browseru.
+2. Prijavite se sa kredencijalima:
+   - **Korisničko ime:** `admin`
+   - **Lozinka:** `adminpassword`
+3. Idite na **Explore** (ikona grafikona sa leve strane).
+4. Izaberite željeni buket (npr. `dht`, `pir`, `ultrasonic`) da biste videli prikupljene podatke.
+5. InfluxDB token koji se koristi u aplikaciji je `iot_token_123`, a organizacija je `iot_org`.
+
 ## Config
-Konfiguracija uređaja vrši se kroz fajl `settings.json`, gde se za svaki senzor i aktuator definišu pinovi i režim rada (simuliran ili realan). 
+Konfiguracija uređaja vrši se kroz fajl `settings.json` (ili specifične fajlove poput `settings_P1.json`), gde se za svaki senzor i aktuator definišu pinovi i režim rada (simuliran ili realan).
+
 ## Uređaji
 ### Senzori
-- **DS1** - Door Sensor 
+- **DS1** - Door Sensor
 - **DPIR1** - Door Motion Sensor
-- **DUS1** - Door Ultrasonic Sensor 
+- **DUS1** - Door Ultrasonic Sensor
 - **DMS** - Door Membrane Switch
 ### Aktuatori
-- **DL** - Door Light 
+- **DL** - Door Light
 - **DB** - Door Buzzer

@@ -1,7 +1,14 @@
-{
+  {
   "PI": "PI1",
+  "name": "Smart Home PI 1",
+  "mqtt": {
+    "host": "localhost",
+    "port": 1883,
+    "topic": "smart_home/pi1"
+  },
   "devices": {
     "DS1": {
+      "name": "Door Sensor",
       "enabled": true,
       "simulated": true,
       "pin": 5,
@@ -9,12 +16,14 @@
       "interval": 0.2
     },
     "DPIR1": {
+      "name": "Door Motion Sensor",
       "enabled": true,
       "simulated": true,
       "pin": 6,
       "interval": 0.5
     },
     "DUS1": {
+      "name": "Door Ultrasonic Sensor",
       "enabled": true,
       "simulated": true,
       "trigger": 23,
@@ -22,25 +31,29 @@
       "interval": 1.0
     },
     "DMS": {
+      "name": "Door Membrane Switch",
       "enabled": true,
       "simulated": true,
       "pins": [16, 20, 21, 26, 19, 13, 12, 17],
       "interval": 0.2
     },
     "DL": {
+      "name": "Door Light",
       "enabled": true,
       "simulated": true,
       "pin": 12
     },
     "DB": {
+      "name": "Door Buzzer",
       "enabled": true,
       "simulated": true,
       "pin": 13
     },
     "WEBC": {
+      "name": "Webcam",
       "enabled": false,
       "simulated": true,
       "interval": 5.0
-  }
+    }
   }
 }

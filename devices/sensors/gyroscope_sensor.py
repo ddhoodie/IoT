@@ -3,19 +3,35 @@ import time
 from devices.base import SensorBase
 from simulators.gyroscope_sim import run_gyroscope_sim
 from core.console import safe_print, print_prompt
-
+from core.mqtt_publisher import mqtt_publisher
+import settings
 
 class GyroscopeSensor(SensorBase):
     """Gyroscope and accelerator"""
 
     def start(self, threads, stop_event):
         interval = self.cfg.get("interval", 0.5)
+        is_simulated = self.cfg.get("simulated", True)
 
         def callback(accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z):
             ts = time.strftime("%H:%M:%S")
             safe_print(f"\n[{ts}] {self.code} accel=({accel_x:.2f},{accel_y:.2f},{accel_z:.2f}) "
                        f"gyro=({gyro_x:.2f},{gyro_y:.2f},{gyro_z:.2f})")
             print_prompt()
+
+            data = {
+                "measurement": "Gyroscope",
+                "pi": settings.settings.get("PI", "unknown"),
+                "device": self.cfg.get("name", self.code),
+                "code": self.code,
+                "value": {
+                    "accel": [accel_x, accel_y, accel_z],
+                    "gyro": [gyro_x, gyro_y, gyro_z]
+                },
+                "simulated": is_simulated,
+                "timestamp": time.time()
+            }
+            mqtt_publisher.publish_data("Gyroscope", data)
 
         if self.cfg.get("simulated", True):
             t = threading.Thread(

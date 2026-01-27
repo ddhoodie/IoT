@@ -1,0 +1,35 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: iot-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+      - "1883:1883"   # MQTT
+    entrypoint: /bin/bash -c "rabbitmq-plugins enable rabbitmq_management rabbitmq_mqtt --offline; rabbitmq-server"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: iot-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+      - DOCKER_INFLUXDB_INIT_ORG=iot_org
+      - DOCKER_INFLUXDB_INIT_BUCKET=default
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=iot_token_123
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
+volumes:
+  rabbitmq_data:
+  influxdb_data:
