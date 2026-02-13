@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="sr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Home UI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <header class="header">
+      <h1>Smart Home</h1>
+      <div class="muted">Flask + Jinja (mock mode)</div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h2>System state</h2>
+        <div class="row"><span>Armed:</span> <b id="armed">-</b></div>
+        <div class="row"><span>Alarm:</span> <b id="alarm">-</b></div>
+        <div class="row"><span>Reason:</span> <span id="reason" class="muted">-</span></div>
+        <div class="row"><span>People:</span> <b id="people">-</b></div>
+        <div class="row"><span>Timer:</span> <b id="timer">-</b></div>
+        <div class="row"><span>RGB:</span> <b id="rgb">-</b></div>
+        <div class="row"><span>Last update:</span> <span id="ts" class="muted">-</span></div>
+
+        <div id="toast" class="toast hidden"></div>
+      </div>
+
+      <div class="card">
+        <h2>Controls</h2>
+
+        <div class="block">
+          <label>PIN</label>
+          <input id="pin" type="password" placeholder="1234" maxlength="4" />
+          <div class="btnrow">
+            <button id="btnArm">Arm</button>
+            <button id="btnDisarm">Disarm</button>
+            <button id="btnStopAlarm">Stop alarm</button>
+          </div>
+        </div>
+
+        <div class="block">
+          <label>Alarm simulate</label>
+          <div class="btnrow">
+            <button id="btnTriggerDoor">Trigger (door)</button>
+            <button id="btnTriggerMotion">Trigger (motion)</button>
+            <button id="btnTriggerGsg">Trigger (GSG)</button>
+          </div>
+        </div>
+
+        <div class="block">
+          <label>People count</label>
+          <div class="btnrow">
+            <button id="btnIn">+1 (enter)</button>
+            <button id="btnOut">-1 (exit)</button>
+          </div>
+        </div>
+
+        <div class="block">
+          <label>Kitchen timer</label>
+          <input id="timerSeconds" type="number" min="0" step="1" placeholder="seconds" />
+          <div class="btnrow">
+            <button id="btnSetTimer">Set</button>
+            <button id="btnAddTimer">+N sec (BTN)</button>
+          </div>
+          <div class="row muted">N = <span id="nsecLabel">-</span>s</div>
+          <input id="nsec" type="number" min="1" step="1" placeholder="set N seconds" />
+          <button id="btnSetN">Set N</button>
+        </div>
+
+        <div class="block">
+          <label>Bedroom RGB</label>
+          <div class="row">
+            <label class="chk"><input id="rgbOn" type="checkbox"> ON</label>
+            <input id="rgbColor" type="color" value="#ff0000" />
+            <button id="btnRgbApply">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card full">
+        <h2>Grafana</h2>
+        <div class="muted">Kasnije ubacimo pravi embed link.</div>
+        <div class="iframeBox">
+          <iframe
+            id="grafanaFrame"
+            src=""
+            title="Grafana"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

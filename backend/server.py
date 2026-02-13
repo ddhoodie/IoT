@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, render_template, jsonify, request
 import paho.mqtt.client as mqtt
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 import json
 import threading
+import time
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ existing_buckets = set()
 def ensure_bucket_exists(bucket_name):
     if bucket_name in existing_buckets:
         return
-    
+
     try:
         print(f"Checking bucket: {bucket_name}")
         bucket = buckets_api.find_bucket_by_name(bucket_name)
@@ -52,7 +53,6 @@ def on_disconnect(client, userdata, rc):
 
 def on_message(client, userdata, msg):
     print(f"MQTT Server: Received message on topic {msg.topic}")
-    # print(f"MQTT Server: Payload: {msg.payload.decode()}")
     try:
         payload = json.loads(msg.payload.decode())
         if isinstance(payload, list):
@@ -68,13 +68,13 @@ def save_to_influx(data):
     try:
         sensor_type = data.get("measurement", "Unknown")
         bucket = sensor_type.lower()
-        
+
         point = Point(sensor_type) \
             .tag("pi", data.get("pi", "unknown")) \
             .tag("device", data.get("device", "unknown")) \
             .tag("code", data.get("code", "unknown")) \
             .tag("simulated", str(data.get("simulated", False)))
-        
+
         values = data.get("value")
         if isinstance(values, dict):
             for key, val in values.items():
@@ -85,7 +85,7 @@ def save_to_influx(data):
         else:
             print(f"MQTT Server: No values to save for {data.get('code')}")
             return
-        
+
         ensure_bucket_exists(bucket)
         write_api.write(bucket=bucket, record=point)
         print(f"Saved to InfluxDB bucket {bucket}: {data.get('code')}")
@@ -101,11 +101,153 @@ def start_mqtt():
     mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
     mqtt_client.loop_forever()
 
-@app.route('/')
-def index():
-    return "IoT Backend is running."
+# -------------------------------------------------------
+# WEB UI + MOCK API (za front prvo, kasnije povezujemo)
+# -------------------------------------------------------
 
-if __name__ == '__main__':
+STATE = {
+    "armed": False,
+    "alarm": False,
+    "people_count": 0,
+    "last_alarm_reason": "",
+    "rgb": {"on": False, "r": 255, "g": 0, "b": 0},
+    "timer": {
+        "seconds_left": 0,
+        "set_seconds": 0,
+        "add_n_seconds": 10,
+        "running": False,
+        "finished": False
+    },
+    "last_update_ts": time.time(),
+}
+
+PIN_CODE = "1234"  # za demo; posle prebaci u settings
+
+def touch():
+    STATE["last_update_ts"] = time.time()
+
+def require_pin(data) -> bool:
+    return (data or {}).get("pin") == PIN_CODE
+
+@app.route("/")
+def index():
+    # Renderuje templates/index.html
+    return render_template("index.html")
+
+@app.route("/api/state", methods=["GET"])
+def api_state():
+    return jsonify(STATE)
+
+@app.route("/api/alarm/arm", methods=["POST"])
+def api_arm():
+    data = request.get_json(silent=True) or {}
+    if not require_pin(data):
+        return jsonify({"ok": False, "error": "Invalid PIN"}), 401
+    STATE["armed"] = True
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+@app.route("/api/alarm/disarm", methods=["POST"])
+def api_disarm():
+    data = request.get_json(silent=True) or {}
+    if not require_pin(data):
+        return jsonify({"ok": False, "error": "Invalid PIN"}), 401
+    STATE["armed"] = False
+    STATE["alarm"] = False
+    STATE["last_alarm_reason"] = ""
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+@app.route("/api/alarm/trigger", methods=["POST"])
+def api_trigger_alarm():
+    # Namerno bez PIN-a da možeš da demonstriraš 1 klikom
+    data = request.get_json(silent=True) or {}
+    reason = data.get("reason", "manual_trigger")
+    STATE["alarm"] = True
+    STATE["last_alarm_reason"] = reason
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+@app.route("/api/alarm/stop", methods=["POST"])
+def api_stop_alarm():
+    data = request.get_json(silent=True) or {}
+    if not require_pin(data):
+        return jsonify({"ok": False, "error": "Invalid PIN"}), 401
+    STATE["alarm"] = False
+    STATE["last_alarm_reason"] = ""
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+@app.route("/api/people", methods=["POST"])
+def api_people():
+    data = request.get_json(silent=True) or {}
+    delta = int(data.get("delta", 0))
+    STATE["people_count"] = max(0, STATE["people_count"] + delta)
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+@app.route("/api/rgb", methods=["POST"])
+def api_rgb():
+    data = request.get_json(silent=True) or {}
+    rgb = STATE["rgb"]
+
+    if "on" in data:
+        rgb["on"] = bool(data["on"])
+
+    for k in ("r", "g", "b"):
+        if k in data:
+            rgb[k] = max(0, min(255, int(data[k])))
+
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+@app.route("/api/timer/set", methods=["POST"])
+def api_timer_set():
+    data = request.get_json(silent=True) or {}
+    seconds = max(0, int(data.get("seconds", 0)))
+
+    t = STATE["timer"]
+    t["set_seconds"] = seconds
+    t["seconds_left"] = seconds
+    t["running"] = seconds > 0
+    t["finished"] = False
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+@app.route("/api/timer/add_config", methods=["POST"])
+def api_timer_add_config():
+    data = request.get_json(silent=True) or {}
+    n = max(1, int(data.get("n_seconds", 1)))
+    STATE["timer"]["add_n_seconds"] = n
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+@app.route("/api/timer/add", methods=["POST"])
+def api_timer_add():
+    t = STATE["timer"]
+    t["seconds_left"] += int(t["add_n_seconds"])
+    t["running"] = t["seconds_left"] > 0
+    t["finished"] = False
+    touch()
+    return jsonify({"ok": True, "state": STATE})
+
+def timer_loop():
+    while True:
+        time.sleep(1)
+        t = STATE["timer"]
+        if t["running"] and t["seconds_left"] > 0:
+            t["seconds_left"] -= 1
+            touch()
+            if t["seconds_left"] <= 0:
+                t["seconds_left"] = 0
+                t["running"] = False
+                t["finished"] = True
+                touch()
+
+if __name__ == "__main__":
     mqtt_thread = threading.Thread(target=start_mqtt, daemon=True)
     mqtt_thread.start()
-    app.run(host='0.0.0.0', port=5000)
+
+    threading.Thread(target=timer_loop, daemon=True).start()
+
+    app.run(host="0.0.0.0", port=5000, debug=True)
