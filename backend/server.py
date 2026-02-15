@@ -125,6 +125,20 @@ PIN_CODE = "1234"  # za demo; posle prebaci u settings
 
 def touch():
     STATE["last_update_ts"] = time.time()
+    save_state_to_influx()
+
+def save_state_to_influx():
+    try:
+        point = Point("SystemState") \
+            .field("armed", int(STATE["armed"])) \
+            .field("alarm", int(STATE["alarm"])) \
+            .field("people_count", STATE["people_count"]) \
+            .field("timer_seconds", STATE["timer"]["seconds_left"])
+
+        ensure_bucket_exists("system")
+        write_api.write(bucket="system", record=point)
+    except Exception as e:
+        print(f"Error saving system state to InfluxDB: {e}")
 
 def require_pin(data) -> bool:
     return (data or {}).get("pin") == PIN_CODE

@@ -10,7 +10,6 @@
   <div class="wrap">
     <header class="header">
       <h1>Smart Home</h1>
-      <div class="muted">Flask + Jinja (mock mode)</div>
     </header>
 
     <section class="grid">
@@ -81,11 +80,25 @@
 
       <div class="card full">
         <h2>Grafana</h2>
-        <div class="muted">Kasnije ubacimo pravi embed link.</div>
+        <div class="block">
+          <label for="sensorSelect">Select Sensor/Actuator:</label>
+          <select id="sensorSelect">
+            <option value="1">DHT Sensor (Temp & Hum)</option>
+            <option value="2">Gyroscope Sensor</option>
+            <option value="3">Ultrasonic Sensor</option>
+            <option value="4">PIR Sensor</option>
+            <option value="5">Button / Membrane Switch</option>
+            <option value="6">Actuators State</option>
+            <option value="7">IR Sensor</option>
+            <option value="8">Webcam Events</option>
+            <option value="9">People Count</option>
+            <option value="10">System Security State</option>
+          </select>
+        </div>
         <div class="iframeBox">
           <iframe
             id="grafanaFrame"
-            src=""
+            src="http://localhost:3000/d-solo/iot-dashboard/iot-system-dashboard?orgId=1&panelId=1&refresh=5s&theme=dark"
             title="Grafana"
           ></iframe>
         </div>

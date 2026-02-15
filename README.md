@@ -66,6 +66,7 @@ Za naprednu vizuelizaciju podataka sa svih senzora i stanja aktuatora koristite 
    - **Lozinka:** `admin`
 3. Sa leve strane izaberite **Dashboards**.
 4. Otvorite **IoT System Dashboard**. Dashboard je unapred konfigurisan i automatski učitava podatke iz InfluxDB-a.
+   - Vizuelizovani podaci uključuju: DHT, Gyroscope, Ultrasonic, PIR, Button, Membrane Switch, IR, Webcam events, People Count, System Security State i sve aktuatore (LED, Buzzer, RGB, LCD, 7-segment).
 
 ## Config
 Konfiguracija uređaja vrši se kroz fajl `settings.json` (ili specifične fajlove poput `settings_P1.json`), gde se za svaki senzor i aktuator definišu pinovi i režim rada (simuliran ili realan).

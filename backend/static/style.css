@@ -12,7 +12,7 @@ h2 { margin: 0 0 12px 0; font-size: 18px; }
 .row { display:flex; justify-content:space-between; gap: 12px; padding: 6px 0; }
 .block { margin-top: 14px; padding-top: 12px; border-top: 1px solid #1f2a3a; }
 label { display:block; font-size: 13px; color:#c8d1db; margin-bottom: 6px; }
-input[type="password"], input[type="number"] {
+input[type="password"], input[type="number"], select {
   width: 100%; padding: 10px; border-radius: 10px;
   border: 1px solid #263346; background:#0b0f14; color:#e6edf3;
 }

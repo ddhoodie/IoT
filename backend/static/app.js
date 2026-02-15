@@ -141,6 +141,17 @@ function wire() {
     try { await apiPost("/api/rgb", {on,r,g,b}); await refresh(); }
     catch(e){ toast(e.message); }
   };
+
+  const sensorSelect = document.getElementById("sensorSelect");
+  const grafanaFrame = document.getElementById("grafanaFrame");
+  if (sensorSelect && grafanaFrame) {
+    sensorSelect.onchange = () => {
+      const panelId = sensorSelect.value;
+      const baseUrl = "http://localhost:3000/d-solo/iot-dashboard/iot-system-dashboard";
+      const params = `?orgId=1&panelId=${panelId}&refresh=5s&theme=dark`;
+      grafanaFrame.src = baseUrl + params;
+    };
+  }
 }
 
 wire();
