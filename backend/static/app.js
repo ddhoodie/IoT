@@ -50,6 +50,37 @@ function hexToRgb(hex) {
   return {r,g,b};
 }
 
+function renderDevices(devices) {
+  const container = document.getElementById("devicesList");
+  if (!container) return;
+
+  const codes = Object.keys(devices || {}).sort();
+  if (codes.length === 0) {
+    container.innerHTML = '<p class="muted">Waiting for data...</p>';
+    return;
+  }
+
+  let html = "";
+  for (const code of codes) {
+    const d = devices[code];
+    let valStr = JSON.stringify(d.value);
+    if (typeof d.value === "object" && d.value !== null) {
+      valStr = Object.entries(d.value).map(([k,v]) => `${k}:${v}`).join(", ");
+    }
+
+    html += `
+      <div class="device-item">
+        <div class="device-header">
+          <span class="device-name">${d.device || code} (${code})</span>
+          <span class="muted">${new Date(d.timestamp * 1000).toLocaleTimeString()}</span>
+        </div>
+        <div class="device-val">${valStr}</div>
+      </div>
+    `;
+  }
+  container.innerHTML = html;
+}
+
 function render(state) {
   document.getElementById("armed").textContent = fmtBool(state.armed);
   document.getElementById("alarm").textContent = fmtBool(state.alarm);
@@ -60,6 +91,8 @@ function render(state) {
   document.getElementById("ts").textContent = fmtTs(state.last_update_ts);
 
   document.getElementById("nsecLabel").textContent = String(state.timer?.add_n_seconds ?? "-");
+
+  renderDevices(state.devices);
 
   // alarm toast
   if (!lastAlarm && state.alarm) {

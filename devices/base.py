@@ -25,6 +25,7 @@ class ActuatorBase:
             "device": self.cfg.get("name", "unknown"),
             "code": self.code,
             "simulated": self.cfg.get("simulated", False),
-            "value": value
+            "value": value,
+            "timestamp": time.time()
         }
         mqtt_publisher.publish_data("Actuator", data)

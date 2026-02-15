@@ -58,11 +58,27 @@ def on_message(client, userdata, msg):
         if isinstance(payload, list):
             print(f"MQTT Server: Processing batch of {len(payload)} items")
             for data in payload:
+                update_device_state(data)
                 save_to_influx(data)
         else:
+            update_device_state(payload)
             save_to_influx(payload)
     except Exception as e:
         print(f"Error processing message: {e}")
+
+def update_device_state(data):
+    try:
+        code = data.get("code")
+        if code:
+            STATE["devices"][code] = {
+                "value": data.get("value"),
+                "timestamp": data.get("timestamp") or time.time(),
+                "measurement": data.get("measurement"),
+                "device": data.get("device")
+            }
+            STATE["last_update_ts"] = time.time()
+    except Exception as e:
+        print(f"Error updating device state: {e}")
 
 def save_to_influx(data):
     try:
@@ -119,6 +135,7 @@ STATE = {
         "finished": False
     },
     "last_update_ts": time.time(),
+    "devices": {}
 }
 
 PIN_CODE = "1234"  # za demo; posle prebaci u settings
