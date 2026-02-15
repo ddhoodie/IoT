@@ -33,6 +33,9 @@ class App:
         for s in sensors.values():
             s.start(threads, stop_event)
 
+        # setup command listener
+        self.setup_mqtt_commands(cfg, actuators)
+
         # console loop
         self.console_loop(actuators, stop_event)
 
@@ -42,6 +45,30 @@ class App:
         for t in threads:
             t.join(timeout=2)
         print("Bye.")
+
+    def setup_mqtt_commands(self, cfg, actuators):
+        pi_id = cfg.get("PI", "unknown").lower()
+        base_topic = cfg.get("mqtt", {}).get("topic", f"smart_home/{pi_id}")
+        command_topic = f"{base_topic}/command/#"
+
+        def on_message(client, userdata, msg):
+            try:
+                # topic format: smart_home/pi1/command/DL
+                parts = msg.topic.split("/")
+                if len(parts) < 4:
+                    return
+                code = parts[3].upper()
+                if code in actuators:
+                    payload = msg.payload.decode()
+                    args = payload.split()
+                    safe_print(f"\n[MQTT Command] {code} {' '.join(args)}")
+                    actuators[code].handle(args)
+            except Exception as e:
+                safe_print(f"Error processing MQTT command: {e}")
+
+        mqtt_publisher.client.subscribe(command_topic)
+        mqtt_publisher.client.message_callback_add(command_topic, on_message)
+        print(f"Subscribed to commands on {command_topic}")
 
     def console_loop(self, actuators, stop_event):
         safe_print("\nAvailable actuators:")
